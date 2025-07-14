@@ -1,34 +1,29 @@
 <template>
   <div>
-    <h1>📓 ノート一覧</h1>
+    <h2>ノート一覧</h2>
     <ul>
-      <li v-for="note in notes" :key="note.id">
-        <h3>{{ note.title }}</h3>
-        <p>{{ note.content }}</p>
-        <small>🕒 {{ note.createdAt }}</small>
-      </li>
+      <li v-for="note in notes" :key="note.id">{{ note.title }}</li>
     </ul>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import axios from 'axios'
 
 export default {
-  name: 'NoteList',
   data() {
     return {
-      notes: []
-    };
+      notes: [],
+    }
   },
-  created() {
-    axios.get('/api/notes')
-      .then(response => {
-        this.notes = response.data;
+  mounted() {
+    axios.get('http://spring:8081/api/notes')
+      .then(res => {
+        this.notes = res.data
       })
-      .catch(error => {
-        console.error('ノートの取得に失敗しました:', error);
-      });
+      .catch(err => {
+        console.error('API取得エラー:', err)
+      })
   }
-};
+}
 </script>
