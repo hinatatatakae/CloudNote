@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     image: mysql:8.0
@@ -11,6 +13,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - appnet
 
   spring:
     build:
@@ -25,6 +29,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/cloudnote
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - appnet
 
   frontend:
     build:
@@ -34,3 +40,9 @@ services:
       - spring
     ports:
       - "5173:5173"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

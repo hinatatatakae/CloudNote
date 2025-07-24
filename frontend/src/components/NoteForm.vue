@@ -44,7 +44,9 @@ export default {
           title: this.title,
           content: this.content
         }
-        const res = await axios.post('/api/notes', payload)
+		// axios は相対パス
+　　　　const res = await axios.post('/api/notes', payload)
+
         this.$emit('created', res.data)
         this.owner = this.title = this.content = ''
       } catch (e) {

@@ -17,7 +17,7 @@ import com.hinata.cloudnote.repository.NoteRepository;
 
 @RestController
 @RequestMapping("/api/notes")
-@CrossOrigin(origins = "*") // フロントエンド(Vue)との通信を許可
+@CrossOrigin(origins = "*")
 public class NoteController {
 
     @Autowired
