@@ -1,8 +1,11 @@
 <template>
   <div>
     <h2>ノート一覧</h2>
-    <ul>
-      <li v-for="note in notes" :key="note.id">{{ note.title }}</li>
+	<p v-if="notes.length === 0">まだノートがありません。新規作成してください。</p>
+    <ul v-else>
+      <li v-for="note in notes" :key="note.id">
+        {{ note.title }}
+      </li>
     </ul>
   </div>
 </template>

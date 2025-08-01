@@ -44,11 +44,12 @@ export default {
           title: this.title,
           content: this.content
         }
+		console.log('DEBUG payload:', payload);
 		// axios は相対パス
-　　　　const res = await axios.post('/api/notes', payload)
+　　　　const res = await axios.post('/api/notes', payload);
 
-        this.$emit('created', res.data)
-        this.owner = this.title = this.content = ''
+        this.$emit('created', res.data);
+        this.owner = this.title = this.content = '';
       } catch (e) {
         this.error = e.response?.data?.message || '作成に失敗しました'
       } finally {

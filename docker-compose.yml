@@ -6,7 +6,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: cloudnote
+      TZ: Asia/Tokyo
+      LANG: ja_JP.UTF-8
+    # データ永続化用のボリュームを追加
     volumes:
+      - dbdata:/var/lib/mysql
       - ./docker/mysql/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot"]
@@ -43,6 +47,11 @@ services:
     networks:
       - appnet
 
+# データ永続化用の named volume 定義
+volumes:
+  dbdata:
+
+# 各サービスをつなぐカスタムネットワーク
 networks:
   appnet:
     driver: bridge

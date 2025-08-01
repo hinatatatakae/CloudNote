@@ -24,58 +24,80 @@ public class Note {
     private String title;
 
     @Lob
-    private String content;
+    private String content;    
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
     @ElementCollection
     private List<String> tags;
 
-    private String owner; // ユーザー管理があれば @ManyToOne にもできる
+    private String owner;
 
     @PrePersist
     public void onCreate() {
-        this.setCreatedAt(this.setUpdatedAt(LocalDateTime.now()));
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     @PreUpdate
     public void onUpdate() {
-        this.setUpdatedAt(LocalDateTime.now());
+        this.updatedAt = LocalDateTime.now();
     }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    // ─── ID ───────────────────────────────
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    // ─── タイトル ──────────────────────────
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+    // ─── コンテンツ ────────────────────────
+    public String getContent() {
+        return content;
+    }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
-	public LocalDateTime setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-		return updatedAt;
-	}
+    // ─── オーナー ──────────────────────────
+    public String getOwner() {
+        return owner;
+    }
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
-	public String getOwner() {
-		return owner;
-	}
+    // ─── タグ一覧 ──────────────────────────
+    public List<String> getTags() {
+        return tags;
+    }
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
+    // ─── 作成・更新日時 ────────────────────
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
