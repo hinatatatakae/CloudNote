@@ -4,6 +4,7 @@ import path from 'path'
 
 
 export default defineConfig({
+　base: '/notes/',  
   plugins: [vue()],
   resolve: {
     alias: {
