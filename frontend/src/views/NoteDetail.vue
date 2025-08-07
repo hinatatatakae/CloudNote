@@ -11,9 +11,17 @@
 import axios from 'axios'
 export default {
   name: 'NoteDetail',
-  props: ['id'],
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
   data() {
-    return { note: null, error: '' }
+    return {
+      note: null,
+      error: ''
+    }
   },
   async created() {
     try {
@@ -24,6 +32,7 @@ export default {
     }
   }
 }
+
 </script>
 
 <style scoped>
