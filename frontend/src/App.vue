@@ -1,6 +1,12 @@
+<!-- src/App.vue -->
 <template>
+  <header>
+    <router-link to="/">Home</router-link>
+    <router-link to="/register">登録</router-link>
+  </header>
   <router-view />
 </template>
+
 
 <script>
 import Home from './views/Home.vue'

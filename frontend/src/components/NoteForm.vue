@@ -1,6 +1,6 @@
 <template>
   <section class="note-form card">
-    <h2 class="section-title">ノートを作成１</h2>
+    <h2 class="section-title">ノートを作成</h2>
 
     <form @submit.prevent="createNewNote">
       <div class="field">
