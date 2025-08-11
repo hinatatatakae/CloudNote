@@ -1,12 +1,11 @@
-<!-- src/App.vue -->
 <template>
   <header>
     <router-link to="/">Home</router-link>
     <router-link to="/register">登録</router-link>
+    <router-link to="/login">ログイン</router-link> 
   </header>
   <router-view />
 </template>
-
 
 <script>
 import Home from './views/Home.vue'
@@ -16,8 +15,6 @@ export default {
   components: { Home }
 }
 </script>
-
-
 
 <style scoped>
 .logo {
@@ -33,3 +30,4 @@ export default {
   filter: drop-shadow(0 0 2em #42b883aa);
 }
 </style>
+

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hinata.cloudnote.dto.NoteCreateRequest;
 import com.hinata.cloudnote.entity.Note;
 import com.hinata.cloudnote.repository.NoteRepository;
 @RestController
@@ -41,13 +43,26 @@ public class NoteController {
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+ // src/main/java/com/hinata/cloudnote/controller/NoteController.java
     @PostMapping
-    public Note createNewNote(@RequestBody Note note) {
-    	System.out.println(">>> controller#POST called!");
-        logger.info("▶▶▶ Received Note object: owner={}, title={}, content={}",
-                    note.getOwner(), note.getTitle(), note.getContent());
+    public Note createNewNote(@RequestBody NoteCreateRequest req,
+                              @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails user) {
+        logger.info("▶▶▶ createNewNote by={}, title={}, content={}", user.getUsername(), req.getTitle(), req.getContent());
+
+        Note note = new Note();
+        note.setTitle(req.getTitle());
+        note.setContent(req.getContent());
+        note.setOwner(user.getUsername()); // ここで一元的に確定
+
         return noteRepository.save(note);
     }
+
+    // 「自分のノート一覧」を owner パラメータ不要で取得
+    @GetMapping("/mine")
+    public List<Note> getMyNotes(@AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails user) {
+        return noteRepository.findByOwner(user.getUsername());
+    }
+
 
     // -----------------------------------
     // PUT /api/notes/{id} : 更新

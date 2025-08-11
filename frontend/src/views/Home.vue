@@ -1,7 +1,7 @@
 <template>
   <div class="note-page">
     <header class="page-header">
-      <h1>📝 ノート管理１</h1>
+      <h1>📝 ノート管理</h1>
     </header>
 
     <div class="page-content">

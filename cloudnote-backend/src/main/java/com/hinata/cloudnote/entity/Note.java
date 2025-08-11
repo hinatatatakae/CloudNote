@@ -13,6 +13,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 @Table(name = "notes")
 public class Note {
@@ -31,7 +33,7 @@ public class Note {
 
     @ElementCollection
     private List<String> tags;
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String owner;
 
     @PrePersist

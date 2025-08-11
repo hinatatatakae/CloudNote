@@ -19,57 +19,43 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//          .csrf(csrf -> csrf.disable())
-//          .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-//          .httpBasic(basic -> basic.disable())
-//          .formLogin(login -> login.disable());
-//        return http.build();
-//    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-          .csrf(csrf -> csrf.disable())
-          .authorizeHttpRequests(auth -> auth
-              .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-              .anyRequest().authenticated()
-          )
-          .formLogin(form -> form
-              .loginProcessingUrl("/api/auth/login")           // フロントがPOSTするログインURL
-              .usernameParameter("username")
-              .passwordParameter("password")
-              .successHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK))
-              .failureHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-          )
-          .httpBasic(b -> b.disable())
-          .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+            .csrf(csrf -> csrf.disable()) // CSRF無効化（API向けのため）
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // 認証不要エンドポイント
+                .anyRequest().authenticated() // その他は認証必須
+            )
+            .formLogin(form -> form
+                .loginProcessingUrl("/api/auth/login") // ログイン処理URL（POSTのみ）
+                .usernameParameter("username") // ユーザー名パラメータ
+                .passwordParameter("password") // パスワードパラメータ
+                .successHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)) // 成功時200
+                .failureHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)) // 失敗時401
+            )
+            .httpBasic(b -> b.disable()) // Basic認証は使用しない
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())); // CORS設定
 
         return http.build();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
+        return authConfig.getAuthenticationManager(); // 認証マネージャー取得
     }
-    
-    // 全パス・全オリジンを許可する CORS 設定
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        var config = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
 
-        // ワイルドカードでオリジン全許可
-        config.setAllowedOrigins(List.of("*"));
-        // すべてのHTTPメソッドを許可
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // すべてのヘッダーを許可
-        config.setAllowedHeaders(List.of("*"));
-        // 認証情報を送らないならfalse
-        config.setAllowCredentials(false);
+        config.setAllowedOrigins(List.of("*")); // 全オリジン許可
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 全HTTPメソッド許可
+        config.setAllowedHeaders(List.of("*")); // 全ヘッダー許可
+        config.setAllowCredentials(false); // 認証情報は送らない
 
-        var source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config); // 全パスにCORS設定を適用
         return source;
     }
 }

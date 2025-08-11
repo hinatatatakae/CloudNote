@@ -25,6 +25,7 @@
 
 <script>
 import axios from 'axios'
+import { useAuth } from '@/stores/auth'
 export default {
   name: 'Register',
   data() {
@@ -37,8 +38,10 @@ export default {
     async submit() {
       try {
         const res = await axios.post('/api/auth/register', this.form)
-        // 登録成功後はログインページへ遷移 または Home へ
-        this.$router.push({ name: 'Home' })
+		// 成功時
+		const auth = useAuth()
+		auth.setUser(res.data)
+		this.$router.push('/mypage')
       } catch (e) {
         this.error = e.response?.data?.message || '登録に失敗しました'
       }
