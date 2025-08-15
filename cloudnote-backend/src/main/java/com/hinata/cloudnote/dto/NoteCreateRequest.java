@@ -1,4 +1,3 @@
-// src/main/java/com/hinata/cloudnote/dto/NoteCreateRequest.java
 package com.hinata.cloudnote.dto;
 
 public class NoteCreateRequest {

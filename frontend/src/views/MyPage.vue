@@ -7,11 +7,10 @@
   </section>
 </template>
 
-
 <script>
-import axios from 'axios'
 import NoteForm from '@/components/NoteForm.vue'
 import NoteList from '@/components/NoteList.vue'
+import axios from 'axios'
 import { useAuth } from '@/stores/auth'
 
 export default {
@@ -26,16 +25,12 @@ export default {
   async created() {
     const auth = useAuth()
     const user = auth.currentUser
-    if (!user) {
-      this.$router.push('/login')
-      return
-    }
     this.username = user.username || user.name
     await this.loadNotes()
   },
   methods: {
     async loadNotes() {
-      const res = await axios.get('/api/notes/mine')
+      const res = await axios.get('/notes/mine')
       this.notes = res.data
     },
     handleNoteCreated(newNote) {

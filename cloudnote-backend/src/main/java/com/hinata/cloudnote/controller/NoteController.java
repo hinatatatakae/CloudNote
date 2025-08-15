@@ -20,76 +20,75 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hinata.cloudnote.dto.NoteCreateRequest;
 import com.hinata.cloudnote.entity.Note;
 import com.hinata.cloudnote.repository.NoteRepository;
+
 @RestController
 @RequestMapping("/api/notes")
 @CrossOrigin(origins = "*")
 public class NoteController {
 
-    @Autowired
-    private NoteRepository noteRepository;
-    
-    private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
-    // ✅ すべてのノートを取得
-    @GetMapping
-    public List<Note> getAllNotes() {
-        return noteRepository.findAll();
-    }
+	@Autowired
+	private NoteRepository noteRepository;
 
-    // ✅ ID指定でノートを取得
-    @GetMapping("/{id}")
-    public ResponseEntity<Note> getNoteById(@PathVariable Long id) {
-        return noteRepository.findById(id)
-            .map(note -> ResponseEntity.ok(note))
-            .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 
- // src/main/java/com/hinata/cloudnote/controller/NoteController.java
-    @PostMapping
-    public Note createNewNote(@RequestBody NoteCreateRequest req,
-                              @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails user) {
-        logger.info("▶▶▶ createNewNote by={}, title={}, content={}", user.getUsername(), req.getTitle(), req.getContent());
+	// すべてのノートを取得
+	@GetMapping
+	public List<Note> getAllNotes() {
+		return noteRepository.findAll();
+	}
 
-        Note note = new Note();
-        note.setTitle(req.getTitle());
-        note.setContent(req.getContent());
-        note.setOwner(user.getUsername()); // ここで一元的に確定
+	// ID指定でノートを取得
+	@GetMapping("/{id}")
+	public ResponseEntity<Note> getNoteById(@PathVariable Long id) {
+		return noteRepository.findById(id)
+				.map(note -> ResponseEntity.ok(note))
+				.orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
-        return noteRepository.save(note);
-    }
+	@PostMapping
+	public Note createNewNote(@RequestBody NoteCreateRequest req,
+			@AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails user) {
+		logger.info("▶▶▶ createNewNote by={}, title={}, content={}", user.getUsername(), req.getTitle(),
+				req.getContent());
 
-    // 「自分のノート一覧」を owner パラメータ不要で取得
-    @GetMapping("/mine")
-    public List<Note> getMyNotes(@AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails user) {
-        return noteRepository.findByOwner(user.getUsername());
-    }
+		Note note = new Note();
+		note.setTitle(req.getTitle());
+		note.setContent(req.getContent());
+		note.setOwner(user.getUsername()); // ここで一元的に確定
 
+		return noteRepository.save(note);
+	}
 
-    // -----------------------------------
-    // PUT /api/notes/{id} : 更新
-    @PutMapping("/{id}")
-    public ResponseEntity<Note> updateNote(
-        @PathVariable Long id,
-        @RequestBody Note incoming
-    ) {
-      return noteRepository.findById(id)
-        .map(old -> {
-          old.setOwner(incoming.getOwner());
-          old.setTitle(incoming.getTitle());
-          old.setContent(incoming.getContent());
-          Note updated = noteRepository.save(old);
-          return ResponseEntity.ok(updated);
-        })
-        .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	// 「自分のノート一覧」をownerパラメータ不要で取得
+	@GetMapping("/mine")
+	public List<Note> getMyNotes(
+			@AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails user) {
+		return noteRepository.findByOwner(user.getUsername());
+	}
 
-    // -----------------------------------
-    // DELETE /api/notes/{id} : 削除
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
-      if (!noteRepository.existsById(id)) {
-        return ResponseEntity.notFound().build();
-      }
-      noteRepository.deleteById(id);
-      return ResponseEntity.noContent().build();
-    }
+	// PUT /api/notes/{id} : 更新
+	@PutMapping("/{id}")
+	public ResponseEntity<Note> updateNote(
+			@PathVariable Long id,
+			@RequestBody Note incoming) {
+		return noteRepository.findById(id)
+				.map(old -> {
+					old.setOwner(incoming.getOwner());
+					old.setTitle(incoming.getTitle());
+					old.setContent(incoming.getContent());
+					Note updated = noteRepository.save(old);
+					return ResponseEntity.ok(updated);
+				})
+				.orElseGet(() -> ResponseEntity.notFound().build());
+	}
+
+	// DELETE /api/notes/{id} : 削除
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
+		if (!noteRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		noteRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
 }

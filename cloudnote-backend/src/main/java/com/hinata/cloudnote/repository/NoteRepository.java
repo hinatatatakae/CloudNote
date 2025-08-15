@@ -10,7 +10,7 @@ import com.hinata.cloudnote.entity.Note;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
     
-    // 追加：あるユーザーのノート一覧を取得（任意）
+    // あるユーザーのノート一覧を取得（任意）
     List<Note> findByOwner(String owner);
     
     // タグに指定ワードを含むノートを検索（例：%学習%）

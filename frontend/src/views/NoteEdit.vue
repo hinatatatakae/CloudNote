@@ -38,7 +38,7 @@ export default {
   },
   async created() {
     try {
-      const res = await axios.get(`/api/notes/${this.id}`)
+      const res = await axios.get(`/notes/${this.id}`)
       const note = res.data
       this.owner = note.owner
       this.title = note.title
@@ -57,7 +57,7 @@ export default {
           title: this.title,
           content: this.content
         }
-        await axios.put(`/api/notes/${this.id}`, payload)
+        await axios.put(`/notes/${this.id}`, payload)
         this.$router.push(`/notes/${this.id}`)
       } catch {
         this.error = '保存に失敗しました'

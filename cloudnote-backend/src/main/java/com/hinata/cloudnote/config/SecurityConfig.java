@@ -2,15 +2,20 @@ package com.hinata.cloudnote.config;
 
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,43 +24,85 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // CSRF無効化（API向けのため）
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // 認証不要エンドポイント
-                .anyRequest().authenticated() // その他は認証必須
-            )
-            .formLogin(form -> form
-                .loginProcessingUrl("/api/auth/login") // ログイン処理URL（POSTのみ）
-                .usernameParameter("username") // ユーザー名パラメータ
-                .passwordParameter("password") // パスワードパラメータ
-                .successHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)) // 成功時200
-                .failureHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)) // 失敗時401
-            )
-            .httpBasic(b -> b.disable()) // Basic認証は使用しない
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())); // CORS設定
+	/**
+	 * メインのセキュリティ設定
+	 */
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+		http
+				// REST API向けに CSRF を無効化
+				.csrf(csrf -> csrf.disable())
 
-        return http.build();
-    }
+				// CORS設定を適用
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.cors(Customizer.withDefaults())
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager(); // 認証マネージャー取得
-    }
+				// 認可ルール定義
+				.authorizeHttpRequests(authz -> authz
+						// プリフライトの OPTIONS は常に許可
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+						// 認証不要のエンドポイント群
+						.requestMatchers("/api/auth/**").permitAll()
 
-        config.setAllowedOrigins(List.of("*")); // 全オリジン許可
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 全HTTPメソッド許可
-        config.setAllowedHeaders(List.of("*")); // 全ヘッダー許可
-        config.setAllowCredentials(false); // 認証情報は送らない
+						// それ以外は認証必須
+						.anyRequest().authenticated())
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // 全パスにCORS設定を適用
-        return source;
-    }
+				// フォームログインを無効化（APIで制御）
+				.formLogin(form -> form.disable())
+
+				// ログアウトエンドポイントの設定
+				.logout(logout -> logout
+						.logoutUrl("/api/auth/logout")
+						.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()))
+
+				// 認証エラー時には401を返却
+				.exceptionHandling(ex -> ex
+						.defaultAuthenticationEntryPointFor(
+								new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+								new AntPathRequestMatcher("/api/**")))
+
+				// HTTP Basic認証を無効化
+				.httpBasic(basic -> basic.disable());
+
+		return http.build();
+	}
+
+	/**
+	 * AuthenticationManager Beanの登録
+	 */
+	@Bean
+	public AuthenticationManager authenticationManager(
+			AuthenticationConfiguration authConfig) throws Exception {
+		return authConfig.getAuthenticationManager();
+	}
+
+	/**
+	 * CORS設定ソースのBean
+	 */
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+
+		// フロント開発環境のオリジンを明示
+		config.setAllowedOrigins(List.of("https://localhost:5173"));
+
+		// 許可するHTTPメソッド
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+		// 許可するすべてのヘッダー
+		config.setAllowedHeaders(List.of("*"));
+
+		// Cookie（セッションID）送信を許可
+		config.setAllowCredentials(true);
+
+		// CORS設定をすべてのパスに適用
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+
+		return source;
+	}
 }

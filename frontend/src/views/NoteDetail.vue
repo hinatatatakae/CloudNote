@@ -25,7 +25,7 @@ export default {
   },
   async created() {
     try {
-      const res = await axios.get(`/api/notes/${this.id}`)
+      const res = await axios.get(`/notes/${this.id}`)
       this.note = res.data
     } catch {
       this.error = 'ノート取得に失敗しました'

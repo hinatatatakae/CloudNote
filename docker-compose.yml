@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   db:
@@ -18,9 +17,10 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - appnet
+      - cloudnet
 
   spring:
+    container_name: spring-1
     build:
       context: ./cloudnote-backend
       dockerfile: Dockerfile
@@ -34,7 +34,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
     networks:
-      - appnet
+      - cloudnet
 
   frontend:
     build:
@@ -45,7 +45,7 @@ services:
     ports:
       - "5173:5173"
     networks:
-      - appnet
+      - cloudnet
 
 # データ永続化用の named volume 定義
 volumes:
@@ -53,5 +53,5 @@ volumes:
 
 # 各サービスをつなぐカスタムネットワーク
 networks:
-  appnet:
+  cloudnet:
     driver: bridge
