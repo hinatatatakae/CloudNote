@@ -1,10 +1,9 @@
-<!-- src/views/Login.vue -->
 <template>
-  <section class="login-form">
-    <h2>ログイン</h2>
+  <section class="login-form card">
+    <h2 class="form-title">🔐 ログイン</h2>
 
     <form @submit.prevent="submit">
-      <div>
+      <div class="field">
         <label for="username">ユーザー名</label>
         <input
           id="username"
@@ -14,7 +13,7 @@
         />
       </div>
 
-      <div>
+      <div class="field">
         <label for="password">パスワード</label>
         <input
           id="password"
@@ -25,7 +24,7 @@
         />
       </div>
 
-      <button type="submit" :disabled="loading">
+      <button type="submit" :disabled="loading" class="btn-primary">
         <span v-if="loading">ログイン中…</span>
         <span v-else>ログイン</span>
       </button>
@@ -43,10 +42,7 @@ export default {
   name: 'Login',
   data() {
     return {
-      form: {
-        username: '',
-        password: ''
-      },
+      form: { username: '', password: '' },
       loading: false,
       error: ''
     }
@@ -56,26 +52,16 @@ export default {
       this.loading = true
       this.error = ''
       try {
-        // フォームの内容を x-www-form-urlencoded 形式に整形
-        const params = new URLSearchParams()
-        params.append('username', this.form.username)
-        params.append('password', this.form.password)
+        const res = await axios.post(
+          '/api/auth/login',
+          { username: this.form.username, password: this.form.password },
+          { withCredentials: true }
+        )
 
-        // 認証リクエスト
-		const res = await axios.post(
-			'/api/auth/login',
-			{ username: this.form.username, password: this.form.password },
-			{ withCredentials: true }
-		)
-
-        // 認証成功時：ユーザー情報をストアに保存
         const auth = useAuth()
         auth.setUser(res.data)
-
-        // マイページへリダイレクト
         this.$router.push({ name: 'MyPage' })
       } catch (e) {
-        // 失敗時はステータスに応じてエラーメッセージ表示
         if (e.response?.status === 401) {
           this.error = 'ユーザー名またはパスワードが正しくありません'
         } else {
@@ -90,58 +76,54 @@ export default {
 </script>
 
 <style scoped>
-.login-form {
-  max-width: 400px;
-  margin: 40px auto;
+.card {
+  background: #fff;
   padding: 24px;
-  border: 1px solid #ececec;
-  border-radius: 6px;
-  background: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  max-width: 420px;
+  margin: 40px auto;
 }
-
-.login-form h2 {
-  margin-bottom: 16px;
+.form-title {
   text-align: center;
+  margin-bottom: 20px;
   color: #35495e;
+  font-size: 1.5rem;
 }
-
-.login-form div {
+.field {
   margin-bottom: 14px;
 }
-
-.login-form label {
+label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-weight: bold;
 }
-
-.login-form input {
+input {
   width: 100%;
-  padding: 8px 10px;
-  box-sizing: border-box;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
 }
-
-.login-form button {
+.error {
+  margin-top: 12px;
+  color: #d9534f;
+  text-align: center;
+}
+.btn-primary {
   width: 100%;
-  background: #35495e;
+  background: linear-gradient(135deg, #42b983, #3aa276);
   color: white;
   border: none;
   padding: 12px;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: background 0.25s ease;
 }
-
-.login-form button:disabled {
+.btn-primary:hover {
+  background: linear-gradient(135deg, #3aa276, #319068);
+}
+.btn-primary:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.login-form .error {
-  margin-top: 12px;
-  color: #d9534f;
-  text-align: center;
 }
 </style>

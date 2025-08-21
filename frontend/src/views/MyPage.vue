@@ -1,8 +1,7 @@
-<!-- src/views/MyPage.vue -->
 <template>
-  <section>
-    <h2>{{ username }} さんのノート一覧</h2>
-    <NoteForm @created="handleNoteCreated" />
+  <section class="mypage card">
+    <h2 class="section-title">📂 {{ username }} さんのノート一覧</h2>
+    <NoteForm @noteCreated="handleNoteCreated" />
     <NoteList :notes="notes" />
   </section>
 </template>
@@ -39,3 +38,19 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  padding: 24px;
+  max-width: 960px;
+  margin: 24px auto;
+}
+.section-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+}
+</style>

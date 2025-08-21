@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="createNewNote">
+  <form class="note-form" @submit.prevent="createNewNote">
     <div class="field">
       <label for="title">タイトル</label>
       <input
@@ -21,7 +21,7 @@
       ></textarea>
     </div>
 
-    <button type="submit" :disabled="loading">
+    <button type="submit" :disabled="loading" class="btn-primary">
       <span v-if="loading">作成中…</span>
       <span v-else>作成</span>
     </button>
@@ -47,17 +47,10 @@ export default {
     async createNewNote() {
       this.loading = true
       this.error = ''
-
       try {
-        // title も一緒に送信
-        const payload = {
-          title: this.title,
-          content: this.content
-        }
+        const payload = { title: this.title, content: this.content }
         const res = await axios.post('/notes', payload)
         this.$emit('noteCreated', res.data)
-
-        // フォームをリセット
         this.title = ''
         this.content = ''
       } catch (e) {
@@ -71,18 +64,41 @@ export default {
 </script>
 
 <style scoped>
-.field {
-  margin-bottom: 12px;
+.note-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-
+.field {
+  margin-bottom: 16px;
+}
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
 input, textarea {
   width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
 }
-
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
 .error {
   color: #c33;
-  margin-top: 6px;
+  margin-top: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #42b983, #3aa276);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>

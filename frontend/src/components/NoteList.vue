@@ -10,7 +10,6 @@
         >
           {{ note.title }}
         </router-link>
-
         <p class="item-summary">{{ truncate(note.content, 100) }}</p>
         <div class="item-meta">👤 {{ note.owner }}</div>
       </li>
@@ -21,9 +20,7 @@
 <script>
 export default {
   name: 'NoteList',
-  props: {
-    notes: { type: Array, default: () => [] }
-  },
+  props: { notes: { type: Array, default: () => [] } },
   methods: {
     truncate(text, len) {
       return text.length > len ? text.slice(0, len) + '…' : text
@@ -35,17 +32,48 @@ export default {
 <style scoped>
 .card {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   padding: 24px;
 }
-.section-title { text-align:center; margin-bottom:16px; font-size:1.25rem; }
-.empty { text-align:center; color:#777; margin-top:24px; }
-.list { list-style:none; padding:0; margin:0; }
-.item { padding:16px 0; border-bottom:1px solid #ececec; }
-.item:last-child { border-bottom:none; }
-.item-link { color:#42b983; font-size:1.1rem; text-decoration:none; }
-.item-link:hover { text-decoration:underline; }
-.item-summary { color:#555; line-height:1.4; margin:4px 0 8px; }
-.item-meta { font-size:0.85rem; color:#555; }
+.section-title {
+  text-align:center;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+}
+.empty {
+  text-align:center;
+  color:#777;
+  margin-top:24px;
+}
+.list {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.item {
+  padding:16px 0;
+  border-bottom:1px solid #ececec;
+}
+.item:last-child {
+  border-bottom:none;
+}
+.item-link {
+  color:#42b983;
+  font-size:1.1rem;
+  text-decoration:none;
+  font-weight: bold;
+}
+.item-link:hover {
+  text-decoration:underline;
+}
+.item-summary {
+  color:#555;
+  line-height:1.4;
+  margin:4px 0 8px;
+}
+.item-meta {
+  font-size:0.85rem;
+  color:#555;
+}
 </style>

@@ -1,48 +1,23 @@
-<!-- src/views/Register.vue -->
 <template>
-  <section class="register-form">
-    <h2>ユーザー登録</h2>
-
+  <section class="register-form card">
+    <h2 class="form-title">🆕 ユーザー登録</h2>
     <form @submit.prevent="submit">
-      <div>
+      <div class="field">
         <label for="username">ユーザー名</label>
-        <input
-          id="username"
-          v-model="form.username"
-          required
-          maxlength="20"
-          autocomplete="username"
-        />
+        <input id="username" v-model="form.username" required maxlength="20" autocomplete="username" />
       </div>
-
-      <div>
+      <div class="field">
         <label for="email">メール</label>
-        <input
-          id="email"
-          type="email"
-          v-model="form.email"
-          required
-          autocomplete="email"
-        />
+        <input id="email" type="email" v-model="form.email" required autocomplete="email" />
       </div>
-
-      <div>
+      <div class="field">
         <label for="password">パスワード</label>
-        <input
-          id="password"
-          type="password"
-          v-model="form.password"
-          required
-          minlength="6"
-          autocomplete="new-password"
-        />
+        <input id="password" type="password" v-model="form.password" required minlength="6" autocomplete="new-password" />
       </div>
-
-      <button type="submit" :disabled="loading">
+      <button type="submit" :disabled="loading" class="btn-primary">
         <span v-if="loading">登録中…</span>
         <span v-else>登録</span>
       </button>
-
       <p v-if="error" class="error">{{ error }}</p>
     </form>
   </section>
@@ -52,64 +27,40 @@
 import axios from 'axios'
 import { useAuth } from '@/stores/auth'
 
-// グローバルに withCredentials を有効化
-axios.defaults.withCredentials = true
-
 export default {
   name: 'Register',
-
   data() {
     return {
-      // ← 必ず data() で初期化する
-      form: {
-        username: '',
-        email: '',
-        password: ''
-      },
+      form: { username: '', email: '', password: '' },
       loading: false,
       error: ''
     }
   },
-
   methods: {
     async submit() {
       this.loading = true
       this.error = ''
-
       try {
-		if (this.form.username.length < 3 || this.form.username.length > 20) {
-			this.error = 'ユーザー名は3～20文字で入力してください'
-			this.loading = false
-			return
-		}
-
-		if (!/.+@.+\..+/.test(this.form.email)) {
-			this.error = 'メール形式が正しくありません'
-			this.loading = false
-			return
-		}
-
-		if (this.form.password.length < 6) {
-			this.error = 'パスワードは6文字以上で入力してください'
-			this.loading = false
-			return
-		}
-
-        // API 登録エンドポイントへ POST
-        const res = await axios.post(
-          '/auth/register',
-          this.form,
-          { withCredentials: true }
-        )
-
-        // 認証情報をストアに保存
+        if (this.form.username.length < 3 || this.form.username.length > 20) {
+          this.error = 'ユーザー名は3～20文字で入力してください'
+          this.loading = false
+          return
+        }
+        if (!/.+@.+\..+/.test(this.form.email)) {
+          this.error = 'メール形式が正しくありません'
+          this.loading = false
+          return
+        }
+        if (this.form.password.length < 6) {
+          this.error = 'パスワードは6文字以上で入力してください'
+          this.loading = false
+          return
+        }
+        const res = await axios.post('/auth/register', this.form, { withCredentials: true })
         const auth = useAuth()
         auth.setUser(res.data)
-
-        // マイページへ遷移
         this.$router.push({ name: 'MyPage' })
       } catch (e) {
-        // サーバーからのメッセージ or 汎用エラー
         this.error = e.response?.data?.message || '登録に失敗しました'
       } finally {
         this.loading = false
@@ -120,58 +71,50 @@ export default {
 </script>
 
 <style scoped>
-.register-form {
-  max-width: 400px;
-  margin: 40px auto;
+.card {
+  background: #fff;
   padding: 24px;
-  border: 1px solid #ececec;
-  border-radius: 6px;
-  background: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  max-width: 420px;
+  margin: 40px auto;
 }
-
-.register-form h2 {
+.form-title {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   color: #35495e;
+  font-size: 1.5rem;
 }
-
-.register-form div {
+.field {
   margin-bottom: 14px;
 }
-
-.register-form label {
+label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-weight: bold;
 }
-
-.register-form input {
+input {
   width: 100%;
-  padding: 8px 10px;
-  box-sizing: border-box;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
 }
-
-.register-form button {
+.error {
+  margin-top: 12px;
+  color: #d9534f;
+  text-align: center;
+}
+.btn-primary {
   width: 100%;
-  background: #42b983;
+  background: linear-gradient(135deg, #42b983, #3aa276);
   color: white;
   border: none;
   padding: 12px;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
 }
-
-.register-form button:disabled {
+.btn-primary:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.register-form .error {
-  margin-top: 12px;
-  color: #d9534f;
-  text-align: center;
 }
 </style>
