@@ -42,14 +42,22 @@ public class SecurityConfig {
 
 				// 認可ルール定義
 				.authorizeHttpRequests(authz -> authz
-						// プリフライトの OPTIONS は常に許可
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+					    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-						// 認証不要のエンドポイント群
-						.requestMatchers("/api/auth/**").permitAll()
+					    // 認証不要のエンドポイント
+					    .requestMatchers("/api/auth/**").permitAll()
+					    .requestMatchers(HttpMethod.GET, "/api/notes/**").permitAll() // ← GETは全員OK
 
-						// それ以外は認証必須
-						.anyRequest().authenticated())
+					    // 認証が必要なエンドポイント
+					    .requestMatchers("/api/notes/mine").authenticated()
+					    .requestMatchers(HttpMethod.POST, "/api/notes/**").authenticated()
+					    .requestMatchers(HttpMethod.PUT, "/api/notes/**").authenticated()
+					    .requestMatchers(HttpMethod.DELETE, "/api/notes/**").authenticated()
+
+					    // その他は認証必須
+					    .anyRequest().authenticated()
+					)
+
 
 				// フォームログインを無効化（APIで制御）
 				.formLogin(form -> form.disable())

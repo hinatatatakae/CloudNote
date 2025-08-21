@@ -53,7 +53,7 @@ export default {
       this.error = ''
       try {
         const res = await axios.post(
-          '/api/auth/login',
+          '/auth/login',
           { username: this.form.username, password: this.form.password },
           { withCredentials: true }
         )
