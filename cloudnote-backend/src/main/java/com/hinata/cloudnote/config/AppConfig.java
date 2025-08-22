@@ -11,12 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class AppConfig {
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
 	@Bean
-	public ServletContextInitializer cookieInitializer() {
+	ServletContextInitializer cookieInitializer() {
 		return servletContext -> {
 			SessionCookieConfig cfg = servletContext.getSessionCookieConfig();
 			cfg.setDomain(null);

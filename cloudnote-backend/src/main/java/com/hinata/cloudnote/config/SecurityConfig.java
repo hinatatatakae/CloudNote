@@ -15,23 +15,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	/**
-	 * メインのセキュリティ設定
-	 */
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    /**
+     * メインのセキュリティ設定
+     */
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+		  .sessionManagement(sm -> sm
+		    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+		  );
+
 		http
 				// REST API向けに CSRF を無効化
 				.csrf(csrf -> csrf.disable())
@@ -71,7 +71,9 @@ public class SecurityConfig {
 				.exceptionHandling(ex -> ex
 						.defaultAuthenticationEntryPointFor(
 								new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-								new AntPathRequestMatcher("/api/**")))
+								request -> request.getServletPath().startsWith("/api/")
+								)
+						)
 
 				// HTTP Basic認証を無効化
 				.httpBasic(basic -> basic.disable());
@@ -83,7 +85,7 @@ public class SecurityConfig {
 	 * AuthenticationManager Beanの登録
 	 */
 	@Bean
-	public AuthenticationManager authenticationManager(
+	AuthenticationManager authenticationManager(
 			AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
 	}
@@ -92,7 +94,7 @@ public class SecurityConfig {
 	 * CORS設定ソースのBean
 	 */
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
+	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 
 		// フロント開発環境のオリジンを明示

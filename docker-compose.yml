@@ -1,13 +1,14 @@
+version: '3.8'
 
 services:
   db:
     image: mysql:8.0
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: cloudnote
       TZ: Asia/Tokyo
       LANG: ja_JP.UTF-8
-    # データ永続化用のボリュームを追加
     volumes:
       - dbdata:/var/lib/mysql
       - ./docker/mysql/init:/docker-entrypoint-initdb.d
@@ -19,6 +20,20 @@ services:
     networks:
       - cloudnet
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - cloudnet
+
   spring:
     container_name: spring-1
     build:
@@ -27,16 +42,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/cloudnote
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: "6379"
     networks:
       - cloudnet
 
   frontend:
+    container_name: frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
@@ -47,11 +67,9 @@ services:
     networks:
       - cloudnet
 
-# データ永続化用の named volume 定義
 volumes:
   dbdata:
 
-# 各サービスをつなぐカスタムネットワーク
 networks:
   cloudnet:
     driver: bridge
